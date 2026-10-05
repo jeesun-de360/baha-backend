@@ -5,7 +5,7 @@ export interface ICategory extends Document {
     name: string
     description?: string
     priority?: number
-    status: string
+    status: 'active' | 'inactive' | 'deleted'
     image: string
     metaTitle: string
     metaDescription: string
@@ -30,7 +30,7 @@ const CategorySchema = new Schema<ICategory>(
         },
         status: {
             type: String,
-            enum: ['active', 'inactive'],
+            enum: ['active', 'inactive', 'deleted'],
             default: 'active'
         },
         image: {

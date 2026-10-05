@@ -5,12 +5,13 @@ import {
   getAllSizesController,
   updateSizeController,
 } from "./size.controller";
+import { isAdmin } from "../middleware/isAdmin";
 
 const sizeRouter = Router();
 
 sizeRouter.get("/list", getAllSizesController);
-sizeRouter.post("/create", createSizeController);
-sizeRouter.patch("/update/:id", updateSizeController);
-sizeRouter.delete("/delete/:id", deleteSizeController);
+sizeRouter.post("/create", isAdmin, createSizeController);
+sizeRouter.patch("/update/:id", isAdmin, updateSizeController);
+sizeRouter.delete("/delete/:id", isAdmin, deleteSizeController);
 
 export default sizeRouter;

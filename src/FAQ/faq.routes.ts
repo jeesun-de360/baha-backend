@@ -5,12 +5,13 @@ import {
   getAllFAQsController,
   updateFAQController,
 } from "./faq.controller";
+import { isAdmin } from "../middleware/isAdmin";
 
 const faqRouter = Router();
 
 faqRouter.get("/list", getAllFAQsController);
-faqRouter.post("/create", createFAQController);
-faqRouter.patch("/update/:id", updateFAQController);
-faqRouter.delete("/delete/:id", deleteFAQController);
+faqRouter.post("/create", isAdmin, createFAQController);
+faqRouter.patch("/update/:id", isAdmin, updateFAQController);
+faqRouter.delete("/delete/:id", isAdmin, deleteFAQController);
 
 export default faqRouter;

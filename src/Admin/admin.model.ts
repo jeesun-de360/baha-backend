@@ -5,9 +5,9 @@ export interface IAdmin extends Document {
   email: string;
   password?: string;
   phone?: string;
-  role: "admin";
-  avatar?: string;
-  status: "active" | "inactive";
+  role: string;
+  type: 'admin' | 'staff';
+  status: 'pending' | 'active' | 'deleted';
 }
 
 const AdminSchema = new Schema<IAdmin>(
@@ -34,18 +34,17 @@ const AdminSchema = new Schema<IAdmin>(
     },
     role: {
       type: String,
-      enum: ["admin"],
-      default: "admin",
-      required: true,
+      default: '',
     },
-    avatar: {
+    type: {
       type: String,
+      enum: ['admin', 'staff'] as const,
+      default: 'staff',
     },
     status: {
       type: String,
-      enum: ["active", "inactive"],
+      enum: ["pending", "active", "deleted"],
       default: "active",
-      required: true,
     },
   },
   {

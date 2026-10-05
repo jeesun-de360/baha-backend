@@ -2,39 +2,41 @@ import * as dotenv from "dotenv";
 dotenv.config();
 import express from "express";
 import cors from "cors";
+import cookieParser from "cookie-parser";
 import path from "path";
 import routes from "./routes/routes";
 import { connectToDatabase } from "./database/config";
 
-
-
-if (!process.env.CN_PORT) {
-    process.exit(1);
+if (!process.env.BH_PORT) {
+  process.exit(1);
 }
 
-const PORT: number = parseInt(process.env.CN_PORT as string, 10);
+const PORT: number = parseInt(process.env.BH_PORT as string, 10);
 const app = express();
 
 // Enable CORS for all origins (Express)
-app.use(cors());
+app.use(
+  cors({
+    origin: "http://localhost:5173", // Explicitly declare your frontend URL
+    credentials: true, // Crucial: allows cookies to be sent across origins
+  }),
+);
+app.use(cookieParser());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
-
 
 // Routes
 app.use("/api/v1/", routes);
 
 app.get("/", (req, res) => {
-    res.send(`Server is Running on port ${PORT}`);
+  res.send(`Server is Running!`);
 });
 
 app.use((req, res) => {
-    res.status(404).json({ message: 'Api Not Found' });
+  res.status(404).json({ message: "Api Not Found" });
 });
 
-
-
 app.listen(PORT, async () => {
-    await connectToDatabase();
-    console.log(`Listening on port ${PORT}`);
+  await connectToDatabase();
+  console.log(`Listening on port ${PORT}`);
 });

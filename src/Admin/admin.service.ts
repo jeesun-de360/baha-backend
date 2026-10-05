@@ -1,9 +1,10 @@
 import bcrypt from "bcryptjs";
 import { Admin, IAdmin } from "./admin.model";
+import { generateJWTToken } from "../utils/jwtToken";
 
 // Register Admin service function
 export const registerAdminService = async (data: Partial<IAdmin>) => {
-  const { name, email, password, phone, role, avatar, status } = data;
+  const { name, email, password, phone } = data;
 
   if (!email || !password || !name) {
     throw new Error("Name, email, and password are required");
@@ -26,12 +27,42 @@ export const registerAdminService = async (data: Partial<IAdmin>) => {
     email: normalizedEmail,
     password: hashedPassword,
     phone,
-    role: role || "admin",
-    avatar,
-    status: status || "active",
+    type: "admin",
   });
 
   await admin.save();
 
   return { message: "Admin created successfully" };
 };
+
+// Login Admin service function
+export const loginAdminService = async (email: string, password: string) => {
+  try {
+    const admin = await Admin.findOne({ email });
+    if (!admin || !admin.password) {
+      throw new Error("Invalid credentials or user is not admin");
+    }
+
+    // Check password
+    const isPasswordMatch = await bcrypt.compare(password, admin.password);
+    if (!isPasswordMatch) {
+      throw new Error("Invalid credentails!");
+    }
+
+    // Generate JWT token
+    const token = generateJWTToken({ _id: admin._id.toString(), type: admin.type }, "24h");
+
+    const { password: _pw, ...adminData } = admin.toObject();
+    return {
+      token,
+      admin: adminData,
+    };
+  } catch (error: any) {
+    throw new Error(error.message || "Failed to login admin");
+  }
+};
+
+// Get My Profile
+export const getAdminMyProfileService = async (adminId: string) => {
+  return await Admin.findById(adminId).select("-password");
+}
