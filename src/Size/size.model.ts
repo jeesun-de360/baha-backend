@@ -18,10 +18,20 @@ const SizeSchema = new Schema<ISize>(
     minAge: {
       type: Number,
       required: true,
+      unit: {
+        type: String,
+        enum: ['month', 'year'],
+        default: 'month',
+      },
     },
     maxAge: {
       type: Number,
       required: true,
+      unit: {
+        type: String,
+        enum: ['month', 'year'],
+        default: 'month',
+      },
     },
     description: {
       type: String,

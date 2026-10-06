@@ -3,7 +3,7 @@ import mongoose, { Document, Schema } from "mongoose";
 export interface IColor extends Document {
     name: string
     slug: string
-    status: 'active' | 'inactive'
+    status: 'active' | 'inactive' | 'deleted'
     hexCode: string
     priority?: number
 }
@@ -17,11 +17,10 @@ const ColorSchema = new Schema<IColor>(
         slug: {
             type: String,
             required: true,
-            unique: true
         },
         status: {
             type: String,
-            enum: ['active', 'inactive'],
+            enum: ['active', 'inactive', 'deleted'],
             default: 'active'
         },
         hexCode: {

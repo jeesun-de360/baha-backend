@@ -1,10 +1,15 @@
 import { Color, IColor } from "./color.model";
+import { slugify } from "../utils/helper";
 
 // Create color service function
 export const createColorService = async (data: Partial<IColor>) => {
-  const { name, slug, status, hexCode, priority } = data;
+  let { name, slug, hexCode, status } = data;
 
-  const existingColor = await Color.findOne({ $or: [{ slug }, { hexCode }] });
+  if (!slug) {
+    slug = slugify(name || "");
+  }
+
+  const existingColor = await Color.findOne({ $or: [{ slug }, { hexCode }], status: { $ne: "deleted"} });
   if (existingColor) {
     throw new Error("Color already exists");
   }
@@ -12,7 +17,7 @@ export const createColorService = async (data: Partial<IColor>) => {
     name,
     slug,
     hexCode,
-    priority: priority || 0,
+    status,
   });
   await color.save();
   return color;
@@ -20,7 +25,7 @@ export const createColorService = async (data: Partial<IColor>) => {
 
 // Update color service function
 export const updateColorService = async (id: string, data: Partial<IColor>) => {
-  const updateColor = await Color.findByIdAndUpdate(id, data, { new: true });
+  const updateColor = await Color.findByIdAndUpdate(id, data, { new: true, runValidators: true, });
 
   if (!updateColor) {
     throw new Error("Color not found");
@@ -28,31 +33,63 @@ export const updateColorService = async (id: string, data: Partial<IColor>) => {
   return updateColor;
 };
 
-// Get all colors service function
-export const getAllColorsService = async (filters: {
+interface GetAllColorsFilters {
   query?: string;
-  sort?: "asc" | "desc";
-}) => {
-  const { query, sort = "asc" } = filters;
+  sortBy?: "name" | "hexCode" | "createdAt" | "updatedAt";
+  sortOrder?: "asc" | "desc";
+  offset?: number;
+  limit?: number;
+}
 
-  const colors = await Color.find({
-    $or: [
+export const getAllColorsService = async ({
+  query,
+  sortBy = "name",
+  sortOrder = "asc",
+  offset = 0,
+  limit = 20,
+}: GetAllColorsFilters) => {
+  const filter: Record<string, any> = {
+    status: { $ne: "deleted" },
+  };
+
+  if (query?.trim()) {
+    const search = query.trim();
+
+    filter.$or = [
       {
         name: {
-          $regex: query,
+          $regex: search,
           $options: "i",
         },
       },
       {
         hexCode: {
-          $regex: query,
+          $regex: search,
           $options: "i",
         },
       },
-    ],
-  }).sort({ priority: sort === "asc" ? 1 : -1 });
+    ];
+  }
 
-  return colors;
+  const sortDirection = sortOrder === "desc" ? -1 : 1;
+
+  const [colors, totalColors] = await Promise.all([
+    Color.find(filter)
+      .sort({
+        [sortBy]: sortDirection,
+        _id: 1,
+      })
+      .skip(offset)
+      .limit(limit)
+      .lean(),
+
+    Color.countDocuments(filter),
+  ]);
+
+  return {
+    colors,
+    totalColors,
+  };
 };
 
 // Delete color service function
@@ -60,7 +97,7 @@ export const deleteColorService = async (id: string) => {
   const deleteColor = await Color.findByIdAndUpdate(
     id,
     {
-      status: "inactive",
+      status: "deleted",
     },
     { new: true },
   );

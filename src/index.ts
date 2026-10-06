@@ -15,12 +15,7 @@ const PORT: number = parseInt(process.env.BH_PORT as string, 10);
 const app = express();
 
 // Enable CORS for all origins (Express)
-app.use(
-  cors({
-    origin: "http://localhost:5173", // Explicitly declare your frontend URL
-    credentials: true, // Crucial: allows cookies to be sent across origins
-  }),
-);
+app.use(cors()); // Allow origin all
 app.use(cookieParser());
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));

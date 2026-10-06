@@ -115,7 +115,6 @@ const ProductSchema = new Schema<IProduct>(
     slug: {
       type: String,
       required: true,
-      unique: true,
       lowercase: true,
       trim: true,
     },
@@ -234,13 +233,6 @@ const ProductSchema = new Schema<IProduct>(
   }
 );
 
-// ─── Indexes ──────────────────────────────────────────────────────────────────
-ProductSchema.index({ slug: 1 });
-ProductSchema.index({ category: 1 });
-ProductSchema.index({ status: 1 });
-ProductSchema.index({ isFeatured: 1 });
-ProductSchema.index({ price: 1 });
-ProductSchema.index({ "variants.sku": 1 });
 
 // ─── Model ────────────────────────────────────────────────────────────────────
 export const Product = mongoose.model<IProduct>("Product", ProductSchema);

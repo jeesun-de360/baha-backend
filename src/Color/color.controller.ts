@@ -9,20 +9,19 @@ import {
 // Create color controller function
 export const createColorController = async (req: Request, res: Response) => {
   try {
-    const { name, slug, status, hexCode, priority } = req.body;
+    const { name, slug, hexCode, status } = req.body;
 
-    if (!name || !hexCode || !slug) {
+    if (!name || !hexCode) {
       return res
         .status(400)
-        .json({ message: "Name, hexCode, and slug are required" });
+        .json({ message: "Name and hexCode are required" });
     }
 
     const result = await createColorService({
       name,
       slug,
-      status,
       hexCode,
-      priority,
+      status,
     });
 
     return res.status(201).json(result);
@@ -37,13 +36,13 @@ export const createColorController = async (req: Request, res: Response) => {
 export const updateColorController = async (req: Request, res: Response) => {
   try {
     const id = String(req.params.id);
-    const { name, slug, hexCode, priority } = req.body;
+    const { name, slug, hexCode, priority, status } = req.body;
 
     const result = await updateColorService(id, {
       name,
       slug,
       hexCode,
-      priority,
+      priority, status,
     });
 
     return res.status(200).json(result);
@@ -57,10 +56,13 @@ export const updateColorController = async (req: Request, res: Response) => {
 // Get all colors controller function
 export const getAllColorsController = async (req: Request, res: Response) => {
   try {
-    const { query, sort } = req.query;
+    const { query, sort, offset, limit, sortBy } = req.query;
     const colors = await getAllColorsService({
       query: query as string,
-      sort: sort as "asc" | "desc",
+      offset: Number(offset),
+      limit: Number(limit),
+      sortBy: sortBy as "name" | "hexCode" | "createdAt" | "updatedAt" | undefined,
+      sortOrder: sort as "asc" | "desc" | undefined,
     });
     return res.status(200).json(colors);
   } catch (error: any) {
