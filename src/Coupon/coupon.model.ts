@@ -10,7 +10,7 @@ export interface ICoupon extends Document {
   limitPerCustomer: number;
   startDate: Date;
   endDate: Date;
-  status: "active" | "inactive";
+  status: "active" | "expired" | "deleted";
   description?: string;
 }
 
@@ -60,7 +60,7 @@ const CouponSchema = new Schema<ICoupon>(
     },
     status: {
       type: String,
-      enum: ["active", "inactive"],
+      enum: ["active", "expired", "deleted"] as const,
       default: "active",
       required: true,
     },

@@ -4,8 +4,9 @@ export interface ISize extends Document {
   name: string;
   minAge: number;
   maxAge: number;
+  ageUnit: "month" | "year";
   description?: string;
-  status: "active" | "inactive";
+  status: "active" | "inactive" | "deleted";
   priority?: number;
 }
 
@@ -18,27 +19,22 @@ const SizeSchema = new Schema<ISize>(
     minAge: {
       type: Number,
       required: true,
-      unit: {
-        type: String,
-        enum: ['month', 'year'],
-        default: 'month',
-      },
     },
     maxAge: {
       type: Number,
       required: true,
-      unit: {
-        type: String,
-        enum: ['month', 'year'],
-        default: 'month',
-      },
+    },
+    ageUnit: {
+      type: String,
+      enum: ['month', 'year'] as const,
+      default: 'month',
     },
     description: {
       type: String,
     },
     status: {
       type: String,
-      enum: ["active", "inactive"],
+      enum: ["active", "inactive", "deleted"] as const,
       default: "active",
     },
     priority: {

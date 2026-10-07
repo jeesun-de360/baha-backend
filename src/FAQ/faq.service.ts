@@ -2,14 +2,19 @@ import { FAQ, IFAQ } from "./faq.model";
 
 // Create FAQ service function
 export const createFAQService = async (data: Partial<IFAQ>) => {
-  const { category, question, answer, status, order } = data;
+  const { question, answer, status, order } = data;
+
+  let nextOrder = 0;
+  if (!order) {
+    const totalFAQs = await FAQ.countDocuments();
+    nextOrder = totalFAQs + 1;
+  }
 
   const faq = new FAQ({
-    category,
     question,
     answer,
     status: status || "active",
-    order: order || 0,
+    order: order || nextOrder,
   });
 
   await faq.save();
@@ -33,8 +38,6 @@ export const getAllFAQsService = async (
   search: string,
   limit: number,
   offset: number,
-  status?: string,
-  category?: string,
 ) => {
   const query: Record<string, any> = {};
 
@@ -43,14 +46,6 @@ export const getAllFAQsService = async (
       { question: { $regex: search, $options: "i" } },
       { answer: { $regex: search, $options: "i" } },
     ];
-  }
-
-  if (status) {
-    query.status = status;
-  }
-
-  if (category) {
-    query.category = category;
   }
 
   const result = await FAQ.find(query)
@@ -67,11 +62,7 @@ export const getAllFAQsService = async (
 
 // Delete FAQ service function
 export const deleteFAQService = async (id: string) => {
-  const deletedFAQ = await FAQ.findByIdAndUpdate(
-    id,
-    { status: "inactive" },
-    { new: true },
-  );
+  const deletedFAQ = await FAQ.findByIdAndDelete(id);
 
   if (!deletedFAQ) {
     throw new Error("FAQ not found");

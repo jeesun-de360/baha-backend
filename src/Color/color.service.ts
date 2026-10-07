@@ -25,6 +25,9 @@ export const createColorService = async (data: Partial<IColor>) => {
 
 // Update color service function
 export const updateColorService = async (id: string, data: Partial<IColor>) => {
+  if(data.name){
+    data.slug = slugify(data.name);
+  }
   const updateColor = await Color.findByIdAndUpdate(id, data, { new: true, runValidators: true, });
 
   if (!updateColor) {

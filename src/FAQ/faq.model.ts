@@ -1,7 +1,6 @@
 import mongoose, { Document, Schema } from "mongoose";
 
 export interface IFAQ extends Document {
-  category: "Shipping & Delivery" | "Returns & Refunds" | "Payments & COD" | "Orders & Tracking";
   question: string;
   answer: string;
   status: "active" | "inactive";
@@ -10,11 +9,6 @@ export interface IFAQ extends Document {
 
 const FAQSchema = new Schema<IFAQ>(
   {
-    category: {
-      type: String,
-      enum: ["Shipping & Delivery", "Returns & Refunds", "Payments & COD", "Orders & Tracking"],
-      required: true,
-    },
     question: {
       type: String,
       required: true,

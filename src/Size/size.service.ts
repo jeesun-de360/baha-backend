@@ -2,7 +2,7 @@ import { Size, ISize } from "./size.model";
 
 // Create size service function
 export const createSizeService = async (data: Partial<ISize>) => {
-  const { name, minAge, maxAge, description, status, priority } = data;
+  const { name, minAge, maxAge, ageUnit, description, status, priority } = data;
 
   const existedSize = await Size.findOne({
     minAge: {
@@ -10,6 +10,9 @@ export const createSizeService = async (data: Partial<ISize>) => {
     },
     maxAge: {
       $eq: maxAge,
+    },
+    ageUnit: {
+      $eq: ageUnit,
     },
   });
 
@@ -20,6 +23,7 @@ export const createSizeService = async (data: Partial<ISize>) => {
     name,
     minAge,
     maxAge,
+    ageUnit,
     description,
     status: status || "active",
     priority: priority || 0,
@@ -45,10 +49,16 @@ export const updateSizeService = async (id: string, data: Partial<ISize>) => {
 export const getAllSizesService = async (filters: {
   query?: string;
   sort?: "asc" | "desc";
+  offset?: number;
+  limit?: number;
 }) => {
-  const { query, sort = "asc" } = filters;
+  const { query, sort = "asc", offset = 0, limit = 10 } = filters;
 
-  const filter: Record<string, unknown> = {};
+  const filter: Record<string, unknown> = {
+    status: {
+      $ne: "deleted",
+    },
+  };
 
   if (query?.trim()) {
     filter.name = {
@@ -57,11 +67,16 @@ export const getAllSizesService = async (filters: {
     };
   }
 
-  const sizes = await Size.find(filter).sort({
-    priority: sort === "asc" ? 1 : -1,
-  });
+  const result = await Size.find(filter)
+    .sort({
+      priority: sort === "asc" ? 1 : -1,
+    })
+    .skip(offset)
+    .limit(limit);
 
-  return sizes;
+  const total = await Size.countDocuments(filter);
+
+  return { result, total };
 };
 
 // Delete size service funtion
@@ -69,7 +84,7 @@ export const deleteSizeService = async (id: string) => {
   const deleteSize = await Size.findByIdAndUpdate(
     id,
     {
-      status: "inactive",
+      status: "deleted",
     },
     { new: true },
   );
