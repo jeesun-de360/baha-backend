@@ -7,6 +7,7 @@ import couponRouter from '../Coupon/coupon.routes';
 import testimonialRouter from '../Testimonial/testimonial.routes';
 import faqRouter from '../FAQ/faq.routes';
 import adminRouter from '../Admin/admin.routes';
+import settingsRouter from '../Settings/settings.routes';
 
 
 const routes = Router();
@@ -34,5 +35,8 @@ routes.use("/testimonial", testimonialRouter);
 
 // FAQ routes
 routes.use("/faq", faqRouter);
+
+// Settings routes
+routes.use("/settings", settingsRouter);
 
 export default routes;
