@@ -46,33 +46,31 @@ export const updateSizeService = async (id: string, data: Partial<ISize>) => {
 };
 
 // Get all Sizes service function
-export const getAllSizesService = async (filters: {
-  query?: string;
-  sort?: "asc" | "desc";
-  offset?: number;
-  limit?: number;
-}) => {
-  const { query, sort = "asc", offset = 0, limit = 10 } = filters;
-
+export const getAllSizesService = async (
+  keyword: string,
+  offset: number,
+  limit: number,
+  status: string,
+) => {
   const filter: Record<string, unknown> = {
     status: {
       $ne: "deleted",
     },
   };
 
-  if (query?.trim()) {
+  if (keyword?.trim()) {
     filter.name = {
-      $regex: query.trim(),
+      $regex: keyword.trim(),
       $options: "i",
     };
   }
 
   const result = await Size.find(filter)
-    .sort({
-      priority: sort === "asc" ? 1 : -1,
-    })
-    .skip(offset)
-    .limit(limit);
+  .skip(Number(offset))
+  .limit(Number(limit))
+  .sort({
+    createdAt: -1,
+  })
 
   const total = await Size.countDocuments(filter);
 

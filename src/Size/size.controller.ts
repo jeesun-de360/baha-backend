@@ -62,13 +62,13 @@ export const updateSizeController = async (req: Request, res: Response) => {
 // Get all size controller function
 export const getAllSizesController = async (req: Request, res: Response) => {
   try {
-    const { query, sort, offset, limit } = req.query;
-    const sizes = await getAllSizesService({
-      query: query as string,
-      sort: sort as "asc" | "desc",
-      offset: Number(offset),
-      limit: Number(limit),
-    });
+    const { keyword = "", offset = 0, limit = 10, status = "" } = req.query;
+    const sizes = await getAllSizesService(
+      keyword as string,
+      Number(offset),
+      Number(limit),
+      status as string,
+    );
     return res.status(200).json(sizes);
   } catch (error: any) {
     return res

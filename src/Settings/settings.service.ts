@@ -1,4 +1,4 @@
-import { Setting, IContactInfo, ISocialLinks, IPaymentInfo } from "./settings.model";
+import { Setting, IContactInfo, ISocialLinks, IPaymentInfo, ISettings } from "./settings.model";
 
 
 // Add Settings Service Functions here
@@ -112,6 +112,34 @@ export const updateReturnPolicyService = async (data: string) => {
         }
     );
 }
+
+// Single unified settings update service function
+export const updateSettingsService = async (data: Partial<ISettings>) => {
+  const update: Record<string, unknown> = {};
+  Object.entries(data).forEach(([key, value]) => {
+    if (value !== undefined) {
+      if (typeof value === "object" && value !== null && !Array.isArray(value)) {
+        // Flatten nested objects into dot notation (e.g., "contactInfo.email")
+        Object.entries(value).forEach(([subKey, subVal]) => {
+          if (subVal !== undefined) {
+            update[`${key}.${subKey}`] = subVal;
+          }
+        });
+      } else {
+        update[key] = value;
+      }
+    }
+  });
+  return await Setting.findOneAndUpdate(
+    {},
+    { $set: update },
+    {
+      new: true,
+      upsert: true,
+      runValidators: true,
+    }
+  );
+};
 
 // Get all settings service function
 export const getAllSettingsService = async () => {

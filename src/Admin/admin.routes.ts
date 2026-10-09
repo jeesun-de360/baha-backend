@@ -12,7 +12,7 @@ const adminRouter = Router();
 
 adminRouter.post("/register", registerAdminController);
 adminRouter.post("/login", loginAdminController);
-adminRouter.get("/me", isAdmin, getAdminMyProfileController);
+adminRouter.get("/profile", isAdmin, getAdminMyProfileController);
 adminRouter.patch("/update", isAdmin, updateProfileController);
 adminRouter.patch("/reset-password", isAdmin, resetPasswordController);
 

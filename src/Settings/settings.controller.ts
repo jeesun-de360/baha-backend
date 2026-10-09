@@ -8,6 +8,7 @@ import {
   updateShippingPolicyService,
   updateSocialLinkService,
   updateTermsAndConditionsService,
+  updateSettingsService,
 } from "./settings.service";
 
 // Update contact info controller function
@@ -88,7 +89,8 @@ export const updatePrivacyPolicyController = async (
 ) => {
   try {
     const { privacyPolicy } = req.body;
-    const result = await updatePrivacyPolicyService(privacyPolicy);
+
+    const result = await updatePrivacyPolicyService(privacyPolicy ?? "");
     return res.status(201).json(result);
   } catch (error: any) {
     return res
@@ -154,5 +156,17 @@ export const getAllSettingsController = async (req: Request, res: Response) => {
     return res
       .status(500)
       .json({ message: error.message || "Failed to get settings" });
+  }
+};
+
+// Update settings controller function
+export const updateSettingsController = async (req: Request, res: Response) => {
+  try {
+    const result = await updateSettingsService(req.body);
+    return res.status(200).json(result);
+  } catch (error: any) {
+    return res
+      .status(500)
+      .json({ message: error.message || "Failed to update settings" });
   }
 };
