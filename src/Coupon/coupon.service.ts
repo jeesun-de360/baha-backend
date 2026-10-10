@@ -61,22 +61,26 @@ export const updateCouponService = async (
 
 // Get all coupons service function
 export const getAllCouponsService = async (
-  search: string,
+  keyword: string,
   limit: number,
   offset: number,
   status?: string,
 ) => {
-  const query: Record<string, any> = {};
+  const query: Record<string, any> = {
+    status: { $ne: "deleted" },
+  };
 
-  if (search) {
+  if (keyword?.trim()) {
+    const search = keyword.trim();
+
     query.$or = [
       { code: { $regex: search, $options: "i" } },
       { description: { $regex: search, $options: "i" } },
     ];
   }
 
-  if (status) {
-    query.status = status;
+  if (status && status?.trim() !== "all") {
+    query.status = status.trim();
   }
 
   const result = await Coupon.find(query)

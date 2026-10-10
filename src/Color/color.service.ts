@@ -9,7 +9,10 @@ export const createColorService = async (data: Partial<IColor>) => {
     slug = slugify(name || "");
   }
 
-  const existingColor = await Color.findOne({ $or: [{ slug }, { hexCode }], status: { $ne: "deleted"} });
+  const existingColor = await Color.findOne({
+    $or: [{ slug }, { hexCode }],
+    status: { $ne: "deleted" },
+  });
   if (existingColor) {
     throw new Error("Color already exists");
   }
@@ -25,10 +28,13 @@ export const createColorService = async (data: Partial<IColor>) => {
 
 // Update color service function
 export const updateColorService = async (id: string, data: Partial<IColor>) => {
-  if(data.name){
+  if (data.name) {
     data.slug = slugify(data.name);
   }
-  const updateColor = await Color.findByIdAndUpdate(id, data, { new: true, runValidators: true, });
+  const updateColor = await Color.findByIdAndUpdate(id, data, {
+    new: true,
+    runValidators: true,
+  });
 
   if (!updateColor) {
     throw new Error("Color not found");
@@ -36,27 +42,18 @@ export const updateColorService = async (id: string, data: Partial<IColor>) => {
   return updateColor;
 };
 
-interface GetAllColorsFilters {
-  query?: string;
-  sortBy?: "name" | "hexCode" | "createdAt" | "updatedAt";
-  sortOrder?: "asc" | "desc";
-  offset?: number;
-  limit?: number;
-}
-
-export const getAllColorsService = async ({
-  query,
-  sortBy = "name",
-  sortOrder = "asc",
-  offset = 0,
-  limit = 20,
-}: GetAllColorsFilters) => {
+export const getAllColorsService = async (
+  keyword: string,
+  limit: number,
+  offset: number,
+  status: string,
+) => {
   const filter: Record<string, any> = {
     status: { $ne: "deleted" },
   };
 
-  if (query?.trim()) {
-    const search = query.trim();
+  if (keyword?.trim()) {
+    const search = keyword.trim();
 
     filter.$or = [
       {
@@ -74,17 +71,15 @@ export const getAllColorsService = async ({
     ];
   }
 
-  const sortDirection = sortOrder === "desc" ? -1 : 1;
+  if (status?.trim() && status !== 'all') {
+    filter.status = status.trim();
+  }
 
   const [colors, totalColors] = await Promise.all([
     Color.find(filter)
-      .sort({
-        [sortBy]: sortDirection,
-        _id: 1,
-      })
       .skip(offset)
       .limit(limit)
-      .lean(),
+      .sort({ createdAt: -1 }),
 
     Color.countDocuments(filter),
   ]);

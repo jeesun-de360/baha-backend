@@ -95,9 +95,9 @@ export const updateCouponController = async (req: Request, res: Response) => {
 // Get all coupons controller function
 export const getAllCouponsController = async (req: Request, res: Response) => {
   try {
-    const { search = "", limit = 10, offset = 0, status } = req.query;
+    const { keyword = "", limit = 10, offset = 0, status } = req.query;
     const result = await getAllCouponsService(
-      search as string,
+      keyword as string,
       Number(limit),
       Number(offset),
       status as string,

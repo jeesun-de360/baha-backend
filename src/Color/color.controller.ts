@@ -12,9 +12,7 @@ export const createColorController = async (req: Request, res: Response) => {
     const { name, slug, hexCode, status } = req.body;
 
     if (!name || !hexCode) {
-      return res
-        .status(400)
-        .json({ message: "Name and hexCode are required" });
+      return res.status(400).json({ message: "Name and hexCode are required" });
     }
 
     const result = await createColorService({
@@ -42,7 +40,8 @@ export const updateColorController = async (req: Request, res: Response) => {
       name,
       slug,
       hexCode,
-      priority, status,
+      priority,
+      status,
     });
 
     return res.status(200).json(result);
@@ -56,14 +55,13 @@ export const updateColorController = async (req: Request, res: Response) => {
 // Get all colors controller function
 export const getAllColorsController = async (req: Request, res: Response) => {
   try {
-    const { query, sort, offset, limit, sortBy } = req.query;
-    const colors = await getAllColorsService({
-      query: query as string,
-      offset: Number(offset),
-      limit: Number(limit),
-      sortBy: sortBy as "name" | "hexCode" | "createdAt" | "updatedAt" | undefined,
-      sortOrder: sort as "asc" | "desc" | undefined,
-    });
+    const { keyword = "", limit = 10, offset = 0, status = "" } = req.query;
+    const colors = await getAllColorsService(
+      keyword as string,
+      Number(limit),
+      Number(offset),
+      status as string,
+    );
     return res.status(200).json(colors);
   } catch (error: any) {
     return res
